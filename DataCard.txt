@@ -1,0 +1,112 @@
+########################################################
+#  This is the data card for CSV Analysis              #
+#  Auther : Shih-Chuan, Kevin, Kao                     # 
+########################################################
+
+# Folder to store results
+#Path = ResultPTI/
+#CSVDIR = PTI/
+Path = Result/
+CSVDIR = CSV/
+
+# plot type : png / gif / eps / jpg / pdf 
+PlotType = png
+
+# Result file
+#OutputFile = Result_0002df07.txt
+
+HFileName = hRTC5168_test
+#HFileName = h_DPM_test
+
+PlotName0 = Input_0003a85b
+PlotName1 = Output_0003a85b
+
+#######################################################################################
+# Module 0: MAP Reader  1: NSX reader  2: NSX CDM-SiteCorrMap 6: SINF Reader  5: CDM
+#        3: NSX DPM-SiteCorrMap 4: Study - DPM  7:ASML  8: TLS DPM 9: TSL UPROI
+#       10: Matching
+########################################################################################
+
+Module = 13
+CSVFile = RTC5168_CF1.csv
+
+
+#Module = 3
+#MapCorrFile = MappedBy1006.map
+#OutputFile = MAPCorr_FFly1006.csv
+
+#Module = 3
+#CSVFile = TLS_XCD_LUL1_2.csv
+#OutputFile = TLS_XCD_L1_R2.csv
+#N_Load = 3
+#N_Run = 10
+
+#Module = 10
+#XCDPos = 87
+#Mode = 1
+#Site = 1
+#Die = 1
+#OutputFile = FF_MAP_S1D1_XCD_AA_NoAM.txt
+#CSVFile = Report_150118_065324.csv
+#PSETFile = PSET-S1-D1.csv
+
+#Module = 12
+#XCDPos = 173
+#OutputFile = FF_XCD1_XCDNoAlign.txt
+#CSVFile = Report_150118_054626.csv
+#PSETFile = PSET-S1-D1.csv
+
+#Module = 0
+#MapFile = PTI_11072017_pset_skim.csv
+#MapCorrFile = MTV-DBD-MAPPING-FULL.P60001.P60001-01_site_correction_map
+#CSVFile = PTI_CDReport_051117_011205.csv
+#OutputFile = PTI_PSET.csv
+
+#Module = 9
+#Site = 1
+#Die = 1
+#OutputFile = TLS_XCD_S1D1R2.csv
+#CSVFile = TLS_XCD_2.csv
+
+#Module = 7
+#Axis = 3
+#OutputFile = TLS_AMSL_RunBReport1_X.txt
+#CSVFile = TLS_ASML_RunB_1.csv
+
+#CSVFile = NoSiteAlignment_StageCorrection_1_310817.csv
+#CSVFile = 90degree_Rotation_PostStageCal_Using_TLS_Wafer_corrected.csv
+#CSVFile = TLS_17_Repeatability_TLS_17_Repeatability_1_170817_061634_DPM.CSV
+#CSVFile = TLS_18_no_corrections_1_TLS_18_240817_085646_CD.csv
+
+debug = 0
+
+######################################################################
+#  Module  7: DPM Reader
+######################################################################
+
+######################################################################
+#  Module  6: SINF Reader
+######################################################################
+
+SINFDIR = SINF/
+
+SINFFile1 = A711470.06A3.sinf
+SINFFile2 = RTC5165-0927_06A3-5X-OTF.txt
+
+# Good Die Code : Please transfer to Decimal
+GoodDie1 = 1
+GoodDie2 = 30
+
+# Align Die Row and Column, From top to bottom, left to right
+# ( Row j, Column i )
+AlignDie1 = ( 9, 14 )
+AlignDie2 = ( 6, 13 )
+
+# Die Address of XFrontside is from bottom to top, left to right
+AlignDie2_XF = ( 80, 13 )
+
+
+# Final report defect code
+#         Good, Bad, G1B2, G2B1, Mismatch
+DFCodes = ( 0,   77,   11,   22,   33 )
+
