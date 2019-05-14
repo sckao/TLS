@@ -1,5 +1,5 @@
-#ifndef Study_H
-#define Study_H
+#ifndef Module_H
+#define Module_H
 
 #include <vector>
 #include <stdio.h>
@@ -33,42 +33,34 @@
 #include "AnaInput.h"
 #include "MathTools.h"
 
-class Study {
+class Module {
 
 public:
 
-   Study();     
-   ~Study();
+   Module();     
+   ~Module();
   
-   void VerificationStats() ;
-   void ReadCalib( string fileName, vector<vec>& data1 );   
-   void FromDPM_Matching() ; 
-   void FromCDM_Matching() ; 
-   void MatrixTest() ; 
+   void Analysis() ; 
+   int SiteID( vec data ) ;
+   double dAngle( vec point1, vec point2, bool degree = false ) ;
 
 private:
 
    AnaInput*     Input;
 
-   string cfolder  ;
-   string cFileName ;
-   string mapFileName ;
-   string mapCorrFileName ;
    string hfolder  ;
    string hFileName ;
    string plotType ;
    string plotName0 ;
-   string plotName1 ;
    string outFileName ;
    string logFileName ;
 
    int debug ;
-   int nbin ;
 
-   //ClassDef(Study, 1);
+   //ClassDef(Module, 1);
 };
 
 //#if !defined(__CINT__)
-//    ClassImp(Study);
+//    ClassImp(Module);
 #endif
 

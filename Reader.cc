@@ -15,28 +15,6 @@ static bool pIncreasing( vec s1, vec s2) {
   } 
 }
 
-static bool ScanSortXP( vec s1, vec s2) { return ( s1[4] < s2[4] ) ; }
-static bool ScanSortXN( vec s1, vec s2) { return ( s1[4] > s2[4] ) ; }
-
-static bool ScanSortY( vec s1, vec s2) { 
-   if ( ( s1[5] - s2[5]) > 2. ) {
-      return true ;
-   } else {
-      return false ;
-   }
-}
-
-// sort x from small to large
-static bool ScanSortYP( vec s1, vec s2) { return ( s1[5] < s2[5] ) ; }
-static bool ScanSortYN( vec s1, vec s2) { return ( s1[5] > s2[5] ) ; }
-static bool ScanSortX( vec s1, vec s2) { 
-   if (  s1[4] < s2[4] ) {
-      return true ;
-   } else {
-      return false ;
-   }
-}
-
 int is = 3 ;
 static bool ScanSort( vec s1, vec s2) { return (s1[is] < s2[is]) ; }   
  
@@ -68,158 +46,6 @@ Reader::~Reader(){
   cout<<" done ! "<<endl ;
 }
 
-void Reader::GetDataFromMap( ) {
-
-    vector<vec> data ;
-    data.clear() ;
-
-    // Read data from Map file
-    string kfile = cfolder + mapCorrFileName ;
-    printf(" file = %s \n", kfile.c_str() ) ;
-    //Input->ReadMap( kfile, data ) ;
-    //Input->ReadNSX( kfile, data ) ;
-    //Input->ReadDPM( kfile, data ) ;
-    Input->ReadMapCorrection( kfile ,data ) ;
-    cout<<" Read MapCorr File !! [ "<< data.size()<<" ]" <<endl ;
-
-    // Record the result
-    string logFileName = hfolder +  outFileName ;
-    FILE* logfile = fopen( logFileName.c_str() ,"w");
-
-    // Sort the data - Y first then X , small to large
-    //if ( data.size() > 1 ) { 
-    //   sort( data.begin(), data.end(), pIncreasing );
-       //printf(" small d = %.1f ~ %.1f \n", data[0], data[ data.size() - 1 ] ) ;
-    //}
-    for ( size_t j=0 ; j< data.size(); j++ ) {
-        fprintf(logfile, "%.0f,  %.4f,  %.4f,  %.4f,  %.4f,  %.9f\n", 
-                           data[j][0], data[j][1], data[j][2], data[j][3], data[j][4], data[j][5] ) ;
-
-
-    }
-    fclose( logfile ) ;
- 
-}
-
-// Sort Y then X 
-void Reader::GetDataFromNSX( ) {
-
-    Y2X = false ;
-    vector<vec> data ;
-    data.clear() ;
-
-    // Read data from Map file
-    string kfile = cfolder + cFileName ;
-    printf(" file = %s \n", kfile.c_str() ) ;
-    Input->ReadNSX( kfile, data ) ;
-
-    // Record the result
-    string logFileName = hfolder +  outFileName ;
-    FILE* logfile = fopen( logFileName.c_str() ,"w");
-    vector<vec> data1 ;
-
-    if ( Y2X ) {
-       // Sort the data - Y first then X , small to large
-       if ( data.size() > 1 ) {
-	  cout<<" data length = "<< data[ data.size() -1 ].size() <<endl ;
-	  sort( data.begin(), data.end(), ScanSortY );
-       }
-       /*
-       for (size_t i=0 ; i < data.size() ; i++ ) {
-           printf(" == %.4f  %.4f \n", data[i][4], data[i][5] ) ;
-        }
-        cout<<" =========== End of sorting Y =========== "<<endl ;
-        */
-
-       vector<vec> vecY ;
-
-       double nomY = data[0][5] ;
-       bool scanP = true ;
-       for (size_t i=0 ; i < data.size() ; i++ ) {
-           //printf(" == %.4f  %.4f \n", data[i][4], data[i][5] ) ;
-           if ( nomY - data[i][5] < 1.5 && i < data.size()-2 ) { 
-              vecY.push_back( data[i] ) ; 
-           } else {
-
-              if ( i == data.size()- 1 ) vecY.push_back( data[i] ) ;
-              if ( scanP ) { 
-                 sort( vecY.begin(), vecY.end(), ScanSortXP );
-              } else {
-                 sort( vecY.begin(), vecY.end(), ScanSortXN );
-              }
-              for ( size_t j=0 ; j < vecY.size() ; j++ ) { 
-                  data1.push_back( vecY[j] ) ;
-		  //printf(" == %.4f  %.4f \n", vecY[j][4], vecY[j][5] ) ;
-		  fprintf(logfile, " %.4f  %.4f \n",  vecY[j][4], vecY[j][5] ) ;
-              }
-              vecY.clear() ;
-              scanP = !scanP ;
-              nomY = data[i][5] ;
-              vecY.push_back( data[i] ) ; 
-           }
-       }
-    } else {
-
-       // Sort the data - X first then Y , small to large
-       if ( data.size() > 1 ) {
-	  cout<<" data length = "<< data[ data.size() -1 ].size() <<endl ;
-	  sort( data.begin(), data.end(), ScanSortX );
-       }
-       /*for (size_t i=0 ; i < data.size() ; i++ ) {
-           printf(" == %.4f  %.4f \n", data[i][4], data[i][5] ) ;
-       }
-        cout<<" =========== End of sorting X =========== "<<endl ;
-       */
- 
-       vector<vec> vecX ;
-
-       double nomX = data[0][4] ;
-       bool scanP = false ;
-       for (size_t i=0 ; i < data.size() ; i++ ) {
-           //printf(" == %.4f  %.4f \n", data[i][4], data[i][5] ) ;
-           if ( fabs(nomX - data[i][4]) < 1.5 && i < (data.size()-2) ) { 
-              vecX.push_back( data[i] ) ;
-              //printf(" --> %.4f  %.4f %.4f \n", nomX, data[i][4], nomX - data[i][4]  ) ;
-             
-           } else {
-
-              //cout<<" vecX size = "<< vecX.size() <<endl ; 
-              if ( i == data.size()- 1 ) vecX.push_back( data[i] ) ;
-
-              if ( scanP ) { 
-                 sort( vecX.begin(), vecX.end(), ScanSortYP );
-              } else {
-                 sort( vecX.begin(), vecX.end(), ScanSortYN );
-              }
-              for ( size_t j=0 ; j < vecX.size() ; j++ ) { 
-                  data1.push_back( vecX[j] ) ;
-		  //printf(" == %.4f  %.4f \n", vecX[j][4], vecX[j][5] ) ;
-		  fprintf(logfile, " %.4f  %.4f \n",  vecX[j][4], vecX[j][5] ) ;
-              }
-              vecX.clear() ;
-              scanP = !scanP ;
-              nomX = data[i][4] ;
-              vecX.push_back( data[i] ) ; 
-           }
-       }
-    }
-
-    fclose( logfile ) ;
-    // Check the sortitng 
-    if (debug ) {
-       for ( size_t i=0 ; i < data.size() ; i++ ) {
-           int match = 0 ;
-           for ( size_t j=0 ; j < data1.size() ; j++ ) {
-               if ( data1[j] == data[i] ) match += 1 ; 
-           }
-           if ( match != 1 ) {
-               printf(" >>>  %.4f  %.4f match %d times !! \n", data[i][4], data[i][5], match ) ;
-           }
-       }
-    }
-
-}
-
 // Read MapCorrection file and match with NSX CDM
 void Reader::GetDataFromSiteCorrectionMap( vector<vec>& outputV ) {
 
@@ -246,7 +72,7 @@ void Reader::GetDataFromSiteCorrectionMap( vector<vec>& outputV ) {
     // 3.1 Collect data
     vector<vec> xdata ;
     xdata.clear() ;
-    Input->ReadNSX( xfile, xdata ) ;
+    Input->ReadFreeCSV( xfile, xdata ) ;
     
 
     // Record the result
@@ -524,6 +350,10 @@ void Reader::GetDataFromMapCorrection( ) {
     Input->ReadMapCorrection( kfile ,data ) ;
     cout<<" Read MapCorr File !! [ "<< data.size()<<" ]" <<endl ;
 
+    // Sort the file
+    vector<vec> sdata ;
+    sdata = Input->Sort2D(data,1,2) ;
+
     //2  Record the result
     string logFileName = hfolder +  outFileName ;
     FILE* logfile = fopen( logFileName.c_str() ,"w");
@@ -531,11 +361,10 @@ void Reader::GetDataFromMapCorrection( ) {
     vec output_i ;
 
     fprintf(logfile, "Site  X      Y      offsetX       offsetY      offset_Theta\n" ) ; 
-    for ( size_t j= 0 ; j< data.size(); j++ ) {
+    for ( size_t j= 0 ; j< sdata.size(); j++ ) {
 
         fprintf(logfile, "%.0f, % 04.2f, % 04.2f, %.9f, %.9f, %.9f\n", 
-                     data[j][0], data[j][1], data[j][2], data[j][3], data[j][4], data[j][5] ) ;
-
+                     sdata[j][0], sdata[j][1], sdata[j][2], sdata[j][3], sdata[j][4], sdata[j][5] ) ;
 
     }
 
@@ -702,56 +531,6 @@ void Reader::GetDataFromSINF( ) {
     }
 
     fclose( logfile ) ;
-
-}
-
-void Reader::GetDataFromCSV( ) {
-
-    vector<vec> data ;
-    data.clear() ;
-
-    // Read data from CSV file
-    string kfile = cfolder + cFileName ;
-    Input->ReadCSV( kfile, data ) ;
-    printf(" file = %s \n", kfile.c_str() ) ;
-
-    // Record the result
-    string logFileName = hfolder +  outFileName ;
-    FILE* logfile = fopen( logFileName.c_str() ,"w");
-
-    // Sort the data - Y first then X , small to large
-    if ( data.size() > 1 ) { 
-       sort( data.begin(), data.end(), pIncreasing );
-       //printf(" small d = %.1f ~ %.1f \n", data[0], data[ data.size() - 1 ] ) ;
-    }
- 
-    string plotname0_ = hfolder + plotName0 + "." + plotType ;
-    MakePlots( data, plotname0_ ) ;
-
-    LableDie( data ) ;
-    DieRotation( data ) ;
-    //sort( data.begin(), data.end(), pIncreasing );
-
-    int row = 0 ; 
-    for ( size_t j= 0 ; j< data.size(); j++ ) {
-        //if (data[j].size() != 8 ) fprintf(logfile, " wrong entry !! \n") ;
-
-        if ( j%132 == 0 ) row++ ;
-        if ( j > 1 && data[j][1] == data[j-1][1] && data[j][2] == data[j-1][2] ) {
-           if (data[j].size() != 8 ) fprintf(logfile, " duplicate entry !! \n") ;
-        }
-        int dieNu = (int) data[j][6] ;
-        if ( row%2 == 1 ) continue ;
-        if ( dieNu % 2 == 0 ) continue ;
-        fprintf(logfile, " %.0f  %.6f  %.6f   %.6f  %.6f  %.1f  %.0f %.0f %.6f \n", 
-                     data[j][0], data[j][1], data[j][2], data[j][3], data[j][4], data[j][5], data[j][6], data[j][7], data[j][8] ) ;
-    }
-
-
-    fclose( logfile ) ;
-
-    string plotname1_ = hfolder + plotName1 + "." + plotType ;
-    MakePlots( data, plotname1_ ) ;
 
 }
 

@@ -29,6 +29,9 @@ AnaInput* AnaInput::Instance() {
 
 }
 
+int iis;
+bool SortI( vec s1, vec s2) { return (s1[iis] < s2[iis]) ; }
+
 void AnaInput::SetDatacard( string datacardInput ) {
  
      datacardfile = datacardInput ;
@@ -317,119 +320,6 @@ void AnaInput::GetParameters(string paraName, vector<int>* thePara, string cfgFi
 
 }
 
-// Read MES file
-int AnaInput::ReadMES( string fileName, vector<mes>& data ) {
-
-  // Open data file
-  //printf(" File:%s \n", fileName.c_str() ) ;
-  fstream logfile( fileName.c_str() );
-
-  // Open MES file to read
-  if ( !logfile.is_open() )  { 
-      printf(" file open error \n") ;
-      return 1 ;
-  }
- 
-  // Variables to hold data 
-  float time(0), p1(0), p2(0), p3(0), c1(0) ;
-  int fo = -1 ;
-
-  // data collection
-  mes entry ;
-
-  string  line;
-  double tCut = -999. ;
-  int id = 0 ;
-  while ( getline( logfile, line) ) {
-        if ( line[0] == '/' ) continue ;
-
-
-        fo = sscanf( line.c_str() , "%f  %f  %f  %f  %f" , &time, &p1, &p2, &p3, &c1 );
-        //printf(" read : t[%f] , [%f] , [%f] , [%f] , c[%f] \n", time, p1, p2, p3, c1 ) ;
-        //printf(" (%d) %f %f %f \n", id , time, p1, p2 ) ;
- 
-        if ( time < tCut ) id++ ;
-        tCut = time ;
-
-        entry.time = time ;
-        entry.p1   = p1 ;      
-        entry.p2   = p2 ;      
-        entry.p3   = p3 ;      
-        entry.c    = c1 ;      
-        entry.np   = p2 ;      
-        entry.idx  = id ; 
-        data.push_back( entry ) ;
-
-        if ( fo != 5 ) {
-           printf(" !!! fscan fail %d \n", fo ) ;
-           break;
-        }
-  }
-  logfile.close() ;
-
-  //printf(" data size == %d , %d measurement \n", (int)data.size(), id+1 ) ;
-
-  if ( fo !=5 ) { 
-     return 2 ;  // read error 
-  } else if ( data.size() < 1 )  {
-     return 3 ;
-  } else if ( data.size()%(id+1) != 0 ) {
-     return 4 ;
-  } else {
-     return 0 ;
-  }
-
-}
-
-// Read Calibration and Measurement setup 
-void AnaInput::ReadMESInfo( string fileName, string paraName, vector<double>& paraV  ) {
-
-  // Open data file
-  //printf(" File:%s \n", fileName.c_str() ) ;
-  fstream logfile( fileName.c_str() );
-
-  // Open MES file to read
-  if ( !logfile.is_open() )  { 
-      printf(" file open error \n") ;
-  }
- 
-  // data collection
-  string  line;
-  string  getName;
-  string  getValue;
-  size_t  pos(0) ;
-  size_t  vpos(0) ;
-  double thePara ;
-
-  int id = 0 ;
-  while ( getline( logfile, line) ) {
-        if ( line[0] != '/' ) continue ;
-
-        pos = line.find( paraName );
-        vpos = pos + paraName.size() + 1 ;
-	// exclude the case when this paraName is the sub-string of other paraName 
-	if ( pos > 0 && pos < 999 && line[pos-1] != ' ' ) continue ;
-
-        if ( pos < line.npos ) {
-
-           string str_end = line.substr(vpos-1, 1) ;
-           if ( str_end == ' ' || str_end == ':') {
-              getName  = line.substr( pos, paraName.size() );
-              getValue = line.substr( vpos );
-              thePara = atof( getValue.c_str() );
-              paraV.push_back( thePara ) ; 
-              //cout<< paraName <<" = "<< thePara <<" -> "<< id << endl;
-           }
-           id++ ;
-        }
- 
-  }
-  //printf(" data size == %d , %d measurement \n", (int)data.size(), id+1 ) ;
-  logfile.close() ;
-
-}
-
-
 // Read KLARF files - Only record defect Size
 int AnaInput::ReadKLARF( string fileName, vector<df>& data, double lowLimit ) {
 
@@ -483,59 +373,6 @@ int AnaInput::ReadKLARF( string fileName, vector<df>& data, double lowLimit ) {
   logfile.close() ;
 
   //printf(" data size == %d , %d measurement \n", (int)data.size(), id+1 ) ;
-  if ( data.size() < 1 )  {
-     return 1 ;
-  } else {
-     return 0 ;
-  }
-
-}
-
-// Read CSV file
-int AnaInput::ReadCSV( string fileName, vector<vec>& data ) {
-
-  // Open data file
-  //printf(" File:%s \n", fileName.c_str() ) ;
-  fstream logfile( fileName.c_str() );
-
-  // Open CSV file to read
-  if ( !logfile.is_open() )  { 
-      printf(" file open error \n") ;
-      return 1 ;
-  }
- 
-  // Variables to hold data 
-  double id, x,y,dx,dy,da  ;
-  int fo = -1 ;
-  int debug = 0 ;
-  GetParameters( "debug", &debug ) ;
-  // data collection
-  vec entry ;
-
-  string  line;
-  while ( getline( logfile, line) ) {
-        if ( line[0] == '/' || line[0] == '#' ) continue ;
- 
-        // read data : ID X Y dX dY dTheta 
-        entry.clear() ;
-        fo = sscanf( line.c_str() , "%lf %lf %lf %lf %lf %lf" , &id, &x, &y, &dx, &dy, &da );
-        if (debug) printf(  " >> %.0f %.3f %.3f %.5f %.5f %.1f \n" , id, x, y, dx, dy, da );
-        entry.push_back(id) ;
-        entry.push_back(x) ;
-        entry.push_back(y) ;
-        entry.push_back(dx) ;
-        entry.push_back(dy) ;
-        entry.push_back(da) ;
-
-        if ( fo != 6 || entry.size() != 6 ) {
-           printf(" !!! scan fail (%d) \n", fo ) ;
-           break;
-        } 
-        data.push_back( entry ) ;
-  }
-  logfile.close() ;
-
-  printf(" data size == %d \n", (int)data.size() ) ;
   if ( data.size() < 1 )  {
      return 1 ;
   } else {
@@ -688,90 +525,6 @@ void AnaInput::ReadMapCorrection( string cfgFile, vector<vec>& data ){
      paraFile.close();
 }
 
-// Read the output CSV file from NSX/FF 
-int AnaInput::ReadNSX( string fileName, vector<vec>& data ) {
-
-  // Open data file
-  //printf(" File:%s \n", fileName.c_str() ) ;
-  fstream logfile( fileName.c_str() );
-
-  // Open CSV file to read
-  if ( !logfile.is_open() )  { 
-      printf(" file open error \n") ;
-      return 1 ;
-  }
- 
-  // Variables to hold data 
-  double id, dieX, dieY, x,y, ds  ;
-  char roi[32] ;
-  int fo(-1), fo1(-1) ;
-  int debug = 0 ;
-  GetParameters( "debug", &debug ) ;
-  // data collection
-  vec entry ;
-
-  bool startRead = false ;
-  string  line, line1;
-  int pos = 0 ;
-  while ( getline( logfile, line) ) {
-        if ( !startRead ) {
-            if ( line[0] == 'I' && line[1] == 'D' ) {
-              startRead = true ;
-            }
-            continue ;
-        } 
-
-        // read data : ID X Y dX dY type
-        entry.clear() ;
-
-        // sscanf need fixed length for the string reading so the whole line need to be broken into two 
-        // in order to read the 2nd part of information
-        fo = sscanf( line.c_str() , "%lf, %lf, %lf, %s," , &id, &dieX, &dieY, roi );
-        if (debug) printf(  " (%d) %.0f %.0f %.0f %s \n" ,fo,  id, dieX, dieY, roi);
-        string roi_str = string(roi) ;
-	pos =  line.find( roi_str ) + roi_str.size() + 1;
-	line1 = line.substr( pos) ;
-       
-        /* 
-        if ( string(roi) == "TopRight," ) {
-           pos =  line.find("TopRight") + 9 ;
-           line1 = line.substr( pos) ;
-        }
-        if ( string(roi) == "BottomLeft," ) {
-           pos =  line.find("BottomLeft") + 11 ;
-           line1 = line.substr( pos) ;
-        } 
-        */
-
-        fo1 = sscanf( line1.c_str() , " %lf, %lf, %lf" ,  &ds, &x, &y );
-        if (debug) printf(  " (%d) %.5f %.5f %.5f \n" ,fo1,  ds, x, y);
-        fo = fo + fo1 ;
-
-        entry.push_back(id) ;
-        entry.push_back(dieX) ;
-        entry.push_back(dieY) ;
-        entry.push_back(ds) ;
-        entry.push_back(x) ;
-        entry.push_back(y) ;
-
-        
-        if ( fo != 7 || entry.size() != 6 ) {
-           printf(" !!! scan fail (%d) \n", fo ) ;
-           break;
-        } 
-        
-        data.push_back( entry ) ;
-  }
-  logfile.close() ;
-
-  printf(" data size == %d \n", (int)data.size() ) ;
-  if ( data.size() < 1 )  {
-     return 1 ;
-  } else {
-     return 0 ;
-  }
-
-}
 
 int AnaInput::ReadDPM( string fileName, vector<vec>& data ) {
 
@@ -842,58 +595,6 @@ int AnaInput::ReadDPM( string fileName, vector<vec>& data ) {
 
 }
 
-
-// Read MES file
-int AnaInput::ReadXYData( string fileName, vector<vec>& data ) {
-
-  // Open data file
-  //printf(" File:%s \n", fileName.c_str() ) ;
-  fstream logfile( fileName.c_str() );
-
-  if ( !logfile.is_open() )  { 
-      printf(" file open error \n") ;
-      return 1 ;
-  }
- 
-  // Variables to hold data 
-  float x(0), y(0) ;
-  int fo = -1 ;
-
-  // data collection
-  vec entry ;
-
-  string  line;
-  while ( getline( logfile, line) ) {
-        if ( line[0] == '/' || line[0] == '#' ) continue ;
-
-        entry.clear() ;
-        fo = sscanf( line.c_str() , "%f %f" , &x, &y);
-        //printf(" read : t[%f] , [%f] , [%f] , [%f] , c[%f] \n", time, p1, p2, p3, c1 ) ;
-        //printf(" (%d) %f %f %f \n", id , time, p1, p2 ) ;
- 
-        entry.push_back(x) ; 
-        entry.push_back(y) ; 
-        data.push_back( entry ) ;
-
-        if ( fo != 2 || entry.size() != 2 ) {
-           printf(" !!! fscan fail %d \n", fo ) ;
-           break;
-        }
-        
-  }
-  logfile.close() ;
-
-  //printf(" data size == %d , %d measurement \n", (int)data.size(), id+1 ) ;
-
-  if ( fo !=2 ) { 
-     return 2 ;  // read error 
-  } else if ( data.size() < 1 )  {
-     return 3 ;
-  } else {
-     return 0 ;
-  }
-
-}
 
 // unit for x,y coordinate -> um
 //bool AnaInput::SetExclusion( df& defect, float xl, float xr, float yu, float yd, float threshold ) {
@@ -1079,4 +780,49 @@ void AnaInput::ReadFreeCSV( string fileName, vector<vec>& data, int nSkipLine ) 
   logfile.close() ;
 
 }
+
+vector<vec> AnaInput::Sort2D( vector<vec>& data, int axis1, int axis2 ) {
+
+    vector<vec> data1 ;
+
+    // Sort the data - Example
+    iis = axis1 ;
+    if ( data.size() > 1 ) {
+       sort( data.begin(), data.end(), SortI );
+    }
+
+    vector<vec> col ;
+    col.clear() ;
+    bool nextCol = false ;
+    double x_ = data[0][axis1] ;
+    iis = axis2 ;
+
+    for (size_t i=0; i< data.size(); i++ ) {
+        // Accumulate the same column data
+        if ( fabs(data[i][axis1] - x_ ) < 0.1 ) {
+           col.push_back( data[i] ) ;
+           if ( i == data.size() -1 ) nextCol = true ;
+        } else {
+           nextCol = true ;
+        }
+
+        // Sort the column
+        if ( nextCol ) {
+           cout<<" col size = "<< col.size() <<endl ;
+           sort( col.begin(), col.end(), SortI ) ;
+
+           // Fill up the new sorted data
+           for ( size_t j=0; j < col.size() ; j++ ) {
+               data1.push_back( col[j] ) ;
+           }
+           col.clear() ;
+           col.push_back( data[i] ) ;
+           nextCol = false ;
+        }
+        x_ = data[i][axis1] ;
+    }
+
+    return data1 ;
+
+} 
 

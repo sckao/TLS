@@ -19,12 +19,68 @@ Study::Study( ) {
   Input->GetParameters("PlotName0",     &plotName0 );
   Input->GetParameters("PlotName1",     &plotName1 );
 
+  Input->GetParameters("OutputFile",    &outFileName );
+  logFileName = hfolder +  outFileName ;
+
 }
 
 Study::~Study(){
 
   //delete Input ;
     cout<<" done ! "<<endl ;
+}
+
+void Study::VerificationStats() {
+
+   vector<double> targetXY ;
+   Input->GetParameters("TargetXY",     &targetXY );
+
+
+   FILE* logfile = fopen( logFileName.c_str() ,"w");
+   printf(" Log File = %s \n", logFileName.c_str() ) ;
+
+   vector<vec> data ;
+   for (int i=1; i<8; i++ ) {
+
+       char cuff[32] ;
+       sprintf(cuff, "AxisCalibrationResults_Y_Camera%d.csv", i ) ;
+       cFileName = cuff ;
+       string cvsfile = cfolder + cFileName ;
+
+       ReadCalib( cvsfile, data );
+       fprintf(logfile, " file %d , size = %d \n", i, (int)data.size() ) ;
+       for (size_t j=0 ; j < data.size(); j++ ) {
+           //if ( fabs(data[j][2] - targetXY[0]) < 0.0001 && fabs(data[j][3] - targetXY[1]) < 0.0001 ) {
+           if ( fabs(data[j][2] - targetXY[0]) < 2 ) {
+              fprintf( logfile, "%f, %f, %f, %f, %f \n",  data[j][2], data[j][3], data[j][19], data[j][20], data[j][26] ) ;
+              //break ;
+           }
+       }
+       fprintf(logfile, "========= \n" ) ;
+   }
+
+
+}
+
+
+
+// Read the verification of calibration , trim down those invalid measurements
+void Study::ReadCalib( string fileName, vector<vec>& data1  ) {
+
+    data1.clear() ;
+    vector<vec> data ;
+    data.clear() ;
+
+    printf(" CSV file = %s \n", fileName.c_str() ) ;
+    Input->ReadFreeCSV( fileName, data, 1 ) ;
+
+    // skim those invalid entries
+    for ( size_t i=0; i < data.size(); i++ ) {
+        if ( data[i][9] == -1  ) continue ;
+        if ( data[i][17] == 0 || data[i][18] == 0 || data[i][19] == 0 || data[i][20] == 0 ) continue ;
+        data1.push_back( data[i] ) ;   
+    }
+
 }
 
 

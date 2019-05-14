@@ -62,10 +62,7 @@ public:
   
    void GetDataXCD() ; 
    void SkimXCD( FILE* logfile, string csvfile ) ; 
-   void GetDataFromCSV() ; 
-   void GetDataFromNSX() ; 
    void GetDataFromSINF() ; 
-   void GetDataFromMap() ; 
    void GetDataFromMapCorrection() ; 
    void GetDataFromASML() ; 
    void GetDataFromUPROI() ;

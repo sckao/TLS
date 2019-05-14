@@ -4,7 +4,7 @@ LDFLAGS+=-lutil -lboost_iostreams -lboost_system -lboost_filesystem -lgsl -lgslc
 LIB=`${ROOTSYS}/bin/root-config --libs`
 GLIB=`${ROOTSYS}/bin/root-config --glibs`
 
-OBJECTS=AnaInput.o MathTools.o Reader.o Study.o Match.o
+OBJECTS=AnaInput.o MathTools.o Reader.o Study.o Match.o Module.o
 
 all:test.exe
 
@@ -21,6 +21,9 @@ Study.o : Study.cc Study.h
 	$(CC) -c -o $@ $< $(ROOTFLAG) $(LIB)
 
 Match.o : Match.cc Match.h
+	$(CC) -c -o $@ $< $(ROOTFLAG) $(LIB)
+
+Module.o : Module.cc Module.h
 	$(CC) -c -o $@ $< $(ROOTFLAG) $(LIB)
 
 test.exe : main.cc $(OBJECTS)

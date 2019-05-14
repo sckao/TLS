@@ -1,5 +1,5 @@
-#ifndef Study_H
-#define Study_H
+#ifndef Module_H
+#define Module_H
 
 #include <vector>
 #include <stdio.h>
@@ -33,42 +33,42 @@
 #include "AnaInput.h"
 #include "MathTools.h"
 
-class Study {
+class Module {
 
 public:
 
-   Study();     
-   ~Study();
+   Module();     
+   ~Module();
   
-   void VerificationStats() ;
-   void ReadCalib( string fileName, vector<vec>& data1 );   
-   void FromDPM_Matching() ; 
-   void FromCDM_Matching() ; 
-   void MatrixTest() ; 
+   void Analysis() ; 
+   void GetPitch( vector<vec>& output ) ;
+   void GetXY( vector<vec>& output ) ;
+
+   pair<double,double> gsl_vector_mean( vector<double>& v ) ;
+   pair<double,double> gsl_vector_linear_fit( vector<double>& vx, vector<double>& vy ) ;
 
 private:
 
    AnaInput*     Input;
 
-   string cfolder  ;
-   string cFileName ;
-   string mapFileName ;
-   string mapCorrFileName ;
    string hfolder  ;
    string hFileName ;
    string plotType ;
    string plotName0 ;
-   string plotName1 ;
    string outFileName ;
    string logFileName ;
+   string logFileName1 ;
+   string logFileName2 ;
 
    int debug ;
-   int nbin ;
+   int site ;
+   int die ;
+   int tob ;
 
-   //ClassDef(Study, 1);
+   //ClassDef(Module, 1);
 };
 
 //#if !defined(__CINT__)
-//    ClassImp(Study);
+//    ClassImp(Module);
 #endif
 

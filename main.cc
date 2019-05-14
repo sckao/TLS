@@ -18,6 +18,7 @@
 #include "Reader.h"
 #include "Study.h"
 #include "Match.h"
+#include "Module.h"
 
 using namespace std; 
 
@@ -40,12 +41,6 @@ int main( int argc, const char* argv[] ) {
      delete reader ;
   }
 
-  if ( module == 1 ) {
-     Reader  *reader  = new Reader( ) ;
-     reader->GetDataFromNSX();
-     delete reader ;
-  }
-
   if ( module == 2 ) {
      vector<vec> data ;
      Reader  *reader  = new Reader( ) ;
@@ -55,9 +50,6 @@ int main( int argc, const char* argv[] ) {
 
   if ( module == 3 ) {
      Reader  *reader  = new Reader( ) ;
-     //vector<vec> data ;
-     //reader->MatchDPM_SiteCorrMap( data );
-     //reader->MatchDPM_MapCorr( data );
      reader->GetDataFromMapCorrection();
      delete reader ;
   }
@@ -69,9 +61,9 @@ int main( int argc, const char* argv[] ) {
   }
 
   if ( module == 5 ) {
-     Study  *study  = new Study( ) ;
-     study->FromCDM_Matching( );
-     delete study ;
+     Module  *mod  = new Module( ) ;
+     mod->Analysis( );
+     delete mod ;
   }
 
   if ( module == 6 ) {
@@ -81,10 +73,9 @@ int main( int argc, const char* argv[] ) {
   }
 
   if ( module == 7 ) {
-     Reader  *reader  = new Reader( ) ;
-     reader->GetDataFromASML( );
-     //reader->GetDataFromUPROI( );
-     delete reader ;
+     Match  *matcher  = new Match( ) ;
+     matcher->AlignJetStep( );
+     delete matcher ;
   }
 
   if ( module == 8 ) {
@@ -94,30 +85,30 @@ int main( int argc, const char* argv[] ) {
   }
 
   if ( module == 9 ) {
-     Reader  *reader  = new Reader( ) ;
-     reader->GetDataFromUPROI( );
-     delete reader ;
+     Match  *matcher  = new Match( ) ;
+     //matcher->AlignPickPlace( );
+     //matcher->AlignMask( );
+     matcher->AlignDECA( );
+     delete matcher ;
   }
 
   if ( module == 10 ) {
-     int mode = 0 ;
-     Input->GetParameters("Mode", &mode ) ;
      Match  *matcher  = new Match( ) ;
-     //matcher->Matching( );
-     matcher->OutputFakePSET( mode );
-     //matcher->RepeatRun( );
+     //matcher->OutputFakePSET( );
+     matcher->ReworkPSET( );
      delete matcher ;
   }
 
   if ( module == 11 ) {
-     Reader  *reader  = new Reader( ) ;
-     reader->GetDataXCD( );
-     delete reader ;
+     Match  *matcher  = new Match( ) ;
+     vector<vec> data; 
+     matcher->ReadXCD( data, 1 );
+     delete matcher ;
   }
 
   if ( module == 12 ) {
      Match  *matcher  = new Match( ) ;
-     matcher->RepeatAna( );
+     matcher->OutputFakePSET( );
      delete matcher ;
   }
 
@@ -126,6 +117,19 @@ int main( int argc, const char* argv[] ) {
      reader->GetDieStatistic();
      delete reader ;
   }
+
+  if (module == 14 ) {
+     Module  *mod  = new Module( ) ;
+     mod->AnalyzeStepFAST( );
+     delete mod ;
+  }
+
+  if (module == 15 ) {
+     Module  *mod  = new Module( ) ;
+     mod->CompareXY( );
+     delete mod ;
+  }
+
 
   delete Input ;
   cout<<" Finished !!!"<<endl ;

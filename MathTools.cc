@@ -272,6 +272,7 @@ double MathTools::AxB( double v1x, double v1y, double v2x, double v2y ) {
       return axb ;
 }
 
+// Return angle in radian ( -pi/2 ~ pi/2 )
 double MathTools::angleAB( double V1x, double V1y, double V2x, double V2y ) {
 
       double axb = AxB( V1x, V1y, V2x, V2y ) ;

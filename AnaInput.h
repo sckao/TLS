@@ -64,17 +64,11 @@ public:
    void GetParameters( string paraName, vector<string>* thePara, string cfgFile = "" );
    void GetParameters( string paraName, vector<int>* thePara, string cfgFile = "" );
    
-   int ReadMES( string fileName, vector<mes>& dataV ) ;
-   int ReadXYData( string fileName, vector<vec>& data ) ;
-   int ReadCSV( string fileName, vector<vec>& dataV ) ;
    void ReadFreeCSV( string fileName, vector<vec>& dataV, int nSkipLine = 0 ) ;
-   int ReadNSX( string fileName, vector<vec>& dataV ) ;
    int ReadDPM( string fileName, vector<vec>& dataV ) ;
    void ReadParameter( string paraName, double* thePara, string mapFile );
    void ReadMapCorrection( string mapFile, vector<vec>& data  );
    int ReadMap( string fileName, vector<vec>& dataV, int nSkipLine =0  ) ;
-
-   void ReadMESInfo( string fileName, string paraName, vector<double>& thePara ) ;
 
    void ReadSINF( string fileName, vector<vec>& dataV  ) ;
    int ReadKLARF( string fileName, vector<df>& dataV, double lowLimit = 0 ) ;
@@ -83,7 +77,7 @@ public:
    //bool SetExclusion( df& defect, float xL = -1 , float xR = 999999, float yU= 999999, float yD = -1, float threshold = 50 ) ;
    //bool SetExclusion( df& defect, float x_center= 0, float y_center = 0, float radius = 150000, float threshold = 50 ) ;
    bool SetExclusion( df& defect, vector<float>* limit, float threshold = 50 ) ;
-
+   vector<vec> Sort2D( vector<vec>& data, int axis1, int axis2 ) ;
 
 
 private:
